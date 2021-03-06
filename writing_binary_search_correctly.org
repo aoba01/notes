@@ -1,0 +1,58 @@
+* 写出正确的二分查找
+0. 本文记录的是在整数域上的二分查找
+1. 假定查找的目标值是t，根据问题确定一个关于查找范围内值x的性质，叫做check(x)，满足以下两种情况之一：
+   a. 对于任意的i >= t,check(i)成立，对于任意的j < t,check(j)不成立
+   b. 对于任意的i <= t,check(i)成立，对于任意的j > t,check(j)不成立
+2. 假定查找是在一个闭区间 [l,r] 内进行的，那么就可以确定二分查找的框架为：
+#+BEGIN_SRC python
+def binary_search(left, right):
+    while left < right: #0
+        mid = #1
+	if check(mid):
+	    #2
+	else:
+	    #3
+    return left #4
+#+END_SRC
+对于0处，因为查找是在一个闭区间内进行的，所以可以确定退出循环的条件是left >= right，进而继续循环的条件是left < right
+对于1处，mid的取值确定了下一次循环的left和right，需要根据后面的left/right的取值来确定是(left + right)/2向下取整或向上取整
+对于2/3处，需要根据问题来确定是更新left或者right，以及如何更新
+对于4处，二分查找最终会把查找范围收缩到区间内一个值，也就是left和right相等，所以返回left或者right都是可以的
+3. 考虑问题：有序序列A中存在x，找出x第一次出现的下标
+可以确定性质check(x)为：
+#+BEGIN_SRC python
+def check(nums, idx, x):
+    return x <= nums[idx]
+#+END_SRC
+这个性质check满足1中的a，下面是代码实现
+#+BEGIN_SRC python
+def firstx(nums, x):
+    left, right = 0, len(nums) - 1
+    while left < right:
+        mid = (left + right) / 2 #0
+	if check(nums, mid, x):
+	    right = mid #1
+	else:
+	    left = mid + 1 #2
+    return left
+#+END_SRC
+对于1处，由于问题的性质check，当查找到一个满足性质check的值以后，还需要查找左半边，以找到适合题目要求的值
+对于2处，mid不满足性质check同时序列是有序的，所以把mid设置为mid+1
+根据mid是否满足性质check，把[left,right]划分为[left,mid][mid+1,right]
+对于0处，考虑二分查找最终的可能局面也就是left+1=right，且A[left]=A[right]，且check(left)成立，这种情况下无论mid取
+(left+right)/2的下取整还是上取整都有check(mid)成立，也就是会把right更新为mid，所以为了避免死循环，需要把mid设置为
+(left+right)/2下取整
+4. 考虑问题：有序序列A中存在x，找出x最后一次出现的下标
+#+BEGIN_SRC python
+def check(nums, idx, x):
+    return nums[idx] <= x
+def lastx(nums, x):
+    left, right = 0, len(nums) - 1
+    while left < right:
+        mid = (left + right + (2 - 1)) / 2 #上取整
+	if check(nums, mid, x):
+	    left = mid
+	else
+	    right = mid - 1
+    return left
+#+END_SRC
